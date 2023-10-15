@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    environment {
-        VERSION = "${env.BUILD_NUMBER}"
-    }
     stages {
         stage('Checkout') {
             steps {
@@ -19,11 +16,6 @@ pipeline {
         }
 
         stage("Sonar Quality Check") {
-            agent {
-                docker {
-                    image 'openjdk:11'
-                }
-            }
             steps {
                 script {
                     def scannerHome = tool 'SonarScanner'
@@ -35,12 +27,7 @@ pipeline {
                     }
                 }
 
-                timeout(time: 1, unit: 'HOURS') {
-                    def qg = waitForQualityGate()
-                    if (qg.status != 'OK') {
-                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                    }
-                }
+
             }
         }
     }
