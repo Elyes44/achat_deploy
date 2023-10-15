@@ -1,47 +1,45 @@
-pipeline{
+pipeline {
     agent any
-    environment{
-        VERSION = "${env.BUILD_ID}"
+    environment {
+        VERSION = "${env.BUILD_NUMBER}"
     }
-    stages{
-              stage('Checkout') {
-                       steps {
-                           // Check out your source code from version control (e.g., Git).
-                           checkout scm
-                       }
-                   }
+    stages {
+        stage('Checkout') {
+            steps {
+                // Check out your source code from version control (e.g., Git).
+                checkout scm
+            }
+        }
 
-              stage('Build') {
-                       steps {
-                           // Build your Spring Boot application with Maven.
-                           sh "mvn clean package"
-                       }
-                   }
+        stage('Build') {
+            steps {
+                // Build your Spring Boot application with Maven.
+                sh "mvn clean package"
+            }
+        }
 
-              stage("sonar quality check"){
-                agent {
-                  docker {
+        stage("Sonar Quality Check") {
+            agent {
+                docker {
                     image 'openjdk:11'
-                          }
-                       }
-                steps{
-                  script{
-                     def scannerHome = tool 'SonarScanner';
-                     def mavenHome = tool 'Maven';
+                }
+            }
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    def mavenHome = tool 'Maven'
 
-                                  withSonarQubeEnv(credentialsId: 'sonarqube_token') {
-                                   // Run the SonarScanner for Maven.
-                                  sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${env.SONARQUBE_AUTH_TOKEN}" }
-
+                    withSonarQubeEnv(credentialsId: 'sonarqube_token') {
+                        // Run the SonarScanner for Maven.
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.login=${env.SONARQUBE_AUTH_TOKEN}"
                     }
+                }
 
-                    timeout(time: 1, unit: 'HOURS') {
-                                          def qg = waitForQualityGate()
-                                          if (qg.status != 'OK') {
-                                               error "Pipeline aborted due to quality gate failure: ${qg.status}" // test rules
-                                          }
+                timeout(time: 1, unit: 'HOURS') {
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
                     }
-
                 }
             }
         }
