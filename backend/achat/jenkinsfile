@@ -9,10 +9,11 @@ pipeline {
         }
 
         stage('Build') {
-            steps {
-                // Build your Spring Boot application with Maven.
-                sh "mvn clean package"
-            }
+            // Set the working directory to your Maven project directory.
+                            dir('backend/achat') {
+                                // Build your Spring Boot application with Maven.
+                                sh "mvn clean package"
+                            }
         }
 
         stage("Sonar Quality Check") {
