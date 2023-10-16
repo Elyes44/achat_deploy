@@ -19,7 +19,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    def mavenHome = tool 'maven'
+                    def mavenHome = tool 'M2_HOME'
                     withSonarQubeEnv(credentialsId: 'sonarqube_token') {
                         sh "${mavenHome}/bin/mvn sonar:sonar -Dsonar.login=${env.SONARQUBE_AUTH_TOKEN}"
                     }
