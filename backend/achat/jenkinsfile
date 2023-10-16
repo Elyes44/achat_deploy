@@ -21,7 +21,7 @@ pipeline {
                 script {
                     def mavenHome = tool 'M2_HOME'
                     withSonarQubeEnv(credentialsId: 'sonarqube_token') {
-                        sh "${mavenHome}/bin/mvn sonar:sonar -Dsonar.login=${env.SONARQUBE_AUTH_TOKEN}"
+                        sh "cd backend/achat && ${mavenHome}/bin/mvn sonar:sonar -Dsonar.login=${env.SONARQUBE_AUTH_TOKEN}"
                     }
                 }
             }
