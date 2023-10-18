@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    stages {
+        stage("Clone code from GitHub") {
+            steps {
+                script {
+                    git branch: 'Elyes', credentialsId: 'Git_cred', url: 'https://github.com/Elyes44/achat_deploy.git'
+                }
+            }
+        }
+
+        stage("Maven Build and Test") {
+            steps {
+                dir('backend/achat') {
+                    sh 'mvn clean install'
+                }
+            }
+        }
+
+        stage('SonarQube analysis Spring Boot') {
+            steps {
+                dir('backend/achat') {
+                    withSonarQubeEnv('sonarq') {
+                        sh 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    dir('backend/achat') {
+                        withCredentials([usernamePassword(credentialsId: 'nexus_creds', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                            withMaven(
+                                globalMavenSettingsConfig: '',
+                                jdk: 'JAVA_HOME',
+                                maven: 'M2_HOME',
+                                mavenSettingsConfig: '',
+                                mavenSettingsFilePath: '/usr/share/maven/conf/settings.xml',
+                                publisherStrategy: 'EXPLICIT',
+                                traceability: true
+                            ) {
+                                sh "mvn deploy -X -Dusername=${NEXUS_USERNAME} -Dpassword=${NEXUS_PASSWORD}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
