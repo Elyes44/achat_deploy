@@ -55,7 +55,12 @@
 		</dependency>
 
 	</dependencies>
-
+	<distributionManagement>
+		<repository>
+			<id>nexus_repository</id>
+			<url>http://192.168.33.10:8081/repository/nexus_repo/</url>
+		</repository>
+	</distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
@@ -72,11 +77,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	<distributionManagement>
-		<repository>
-			<id>nexus-cred</id>
-			<name>Nexus</name>
-			<url>http://192.168.33.10:8081/repository/maven_repo/</url>
-		</repository>
-	</distributionManagement>
+
 </project>
