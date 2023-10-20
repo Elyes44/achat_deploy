@@ -5,7 +5,7 @@ FROM openjdk:11-jdk-slim
 WORKDIR /app
 
 # Copy the application JAR file from the target directory into the container
-COPY backend/achat/target/achat-1.0.jar achat.jar
+COPY target/achat-1.0.jar achat.jar
 
 # Expose a port (change the port number if necessary)
 EXPOSE 8080
