@@ -75,8 +75,8 @@
 	<distributionManagement>
 		<repository>
 			<id>nexus-cred</id>
+			<name>Nexus</name>
 			<url>http://192.168.33.10:8081/repository/maven_repo/</url>
 		</repository>
 	</distributionManagement>
-
 </project>
