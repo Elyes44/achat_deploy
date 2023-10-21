@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    
+    environment {
+        registryBack = "justelyes/achat-back"
+        }
 
     stages {
         stage("Clone code from GitHub") {
@@ -13,6 +17,7 @@ pipeline {
         stage("Maven Build and Test") {
             steps {
                 dir('backend/achat') {
+                    sh 'mvn test'
                     sh 'mvn clean install'
                 }
             }
@@ -28,7 +33,30 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Building a Docker Image') {
+            steps {
+                script {
+                    dir('backend/achat') {
+                        def dockerImage = docker.build "${registryBack}:latest"
+                        
+                    }
+                }
+            }
+        }
+
+  stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    // Use the Docker Hub credentials stored in Jenkins
+                    withDockerRegistry([credentialsId: 'docker_credss', url: 'https://index.docker.io/v1/']) {
+                        // Push the Docker image to Docker Hub
+                        sh "docker push ${registryBack}:latest"
+                    }
+                }
+            }
+        }
+
+        stage('Nexus Deploy') {
             steps {
                 script {
                     dir('backend/achat') {
@@ -42,7 +70,7 @@ pipeline {
                                 publisherStrategy: 'EXPLICIT',
                                 traceability: true
                             ) {
-                                sh "mvn deploy -X -Dusername=${NEXUS_USERNAME} -Dpassword=${NEXUS_PASSWORD}"
+                                sh "mvn deploy -Dusername=${NEXUS_USERNAME} -Dpassword=${NEXUS_PASSWORD}"
                             }
                         }
                     }
