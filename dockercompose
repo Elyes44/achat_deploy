@@ -8,7 +8,7 @@ services:
       - achat
 
   angular-app:
-    image: your-angular-image:tag
+    image: justelyes/front-angular:latest
     ports:
       - "4200:4200"
     networks:
