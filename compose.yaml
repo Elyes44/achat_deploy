@@ -2,17 +2,16 @@ version: '3'
 
 services:
   backend:
-    build:
-      context: ./backend/achat/  # Path to your backend application's Dockerfile
+    image: moez063719/achat_backend:latest
     ports:
-      - "8080:8080"  # Map container port 8080 to host port 8080
+      - "8080:8080"
     depends_on:
       - database
+
   frontend:
-    build:
-      context: ./frontend/crud-tuto-front # Path to your frontend application's Dockerfile
+    image: moez063719/achat_frontend:latest
     ports:
-      - "80:80"  # Map container port 80 to host port 80
+      - "80:80"
 
   database:
     image: mysql:latest
