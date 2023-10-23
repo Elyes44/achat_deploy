@@ -3,7 +3,7 @@ version: '3'
 services:
   backend:
     build:
-      context: ./backend/achat  # Path to your backend application's Dockerfile
+      context: ./backend/achat/  # Path to your backend application's Dockerfile
     ports:
       - "8080:8080"  # Map container port 8080 to host port 8080
     depends_on:
