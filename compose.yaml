@@ -8,9 +8,6 @@ services:
       - "8080:8080"  # Map container port 8080 to host port 8080
     depends_on:
       - database
-    volumes:
-      - ./var/lib/jenkins/workspace/'achat backend'/backend/achat/target/achat-1.0.jar:/app/achat.jar
-
   frontend:
     build:
       context: ./frontend/crud-tuto-front # Path to your frontend application's Dockerfile
