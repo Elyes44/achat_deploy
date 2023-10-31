@@ -1,19 +1,26 @@
-# Use the official Node.js image as the base image
-FROM node:16-alpine AS build
+# Étape 1 : Construire l'application Angular
+FROM node:latest as builder
 
-# Set the working directory
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files to the container
+# Copier le fichier package.json et package-lock.json dans le répertoire de travail
 COPY package*.json ./
 
-# Install project dependencies
+# Installer les dépendances
 RUN npm install --force
 
-# Copy the rest of the application code to the container
+# Copier l'ensemble du code source dans le répertoire de travail
 COPY . .
 
-# Build the Angular app for production
+# Construire l'application Angular
 RUN npm run build
 
-# Your Dockerfile continues with the setup for your NGINX or other server
+# Étape 2 : Utiliser Nginx comme image de base pour servir l'application Angular
+FROM nginx:latest
+
+# Copier l'application Angular compilée de l'étape "builder" vers le dossier public par défaut de Nginx
+COPY --from=builder /app/dist/crudtuto-Front /usr/share/nginx/html
+
+# Exposer le port 80 pour le serveur web
+EXPOSE 80

@@ -1,0 +1,8 @@
+# Ignorer les dépendances Node.js
+node_modules/
+
+
+# Ignorer les fichiers de configuration spécifiques à l'IDE
+.idea/
+.vscode/
+.angular/
