@@ -1,14 +1,14 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap scrollspy.js
+ * Bootstrap (v5.2.0): scrollspy.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
 
-import BaseComponent from './base-component.js'
-import EventHandler from './dom/event-handler.js'
-import SelectorEngine from './dom/selector-engine.js'
-import { defineJQueryPlugin, getElement, isDisabled, isVisible } from './util/index.js'
+import { defineJQueryPlugin, getElement, isDisabled, isVisible } from './util/index'
+import EventHandler from './dom/event-handler'
+import SelectorEngine from './dom/selector-engine'
+import BaseComponent from './base-component'
 
 /**
  * Constants
@@ -40,16 +40,14 @@ const Default = {
   offset: null, // TODO: v6 @deprecated, keep it for backwards compatibility reasons
   rootMargin: '0px 0px -25%',
   smoothScroll: false,
-  target: null,
-  threshold: [0.1, 0.5, 1]
+  target: null
 }
 
 const DefaultType = {
   offset: '(number|null)', // TODO v6 @deprecated, keep it for backwards compatibility reasons
   rootMargin: 'string',
   smoothScroll: 'boolean',
-  target: 'element',
-  threshold: 'array'
+  target: 'element'
 }
 
 /**
@@ -112,13 +110,6 @@ class ScrollSpy extends BaseComponent {
     // TODO: on v6 target should be given explicitly & remove the {target: 'ss-target'} case
     config.target = getElement(config.target) || document.body
 
-    // TODO: v6 Only for backwards compatibility reasons. Use rootMargin only
-    config.rootMargin = config.offset ? `${config.offset}px 0px -30%` : config.rootMargin
-
-    if (typeof config.threshold === 'string') {
-      config.threshold = config.threshold.split(',').map(value => Number.parseFloat(value))
-    }
-
     return config
   }
 
@@ -150,8 +141,8 @@ class ScrollSpy extends BaseComponent {
   _getNewObserver() {
     const options = {
       root: this._rootElement,
-      threshold: this._config.threshold,
-      rootMargin: this._config.rootMargin
+      threshold: [0.1, 0.5, 1],
+      rootMargin: this._getRootMargin()
     }
 
     return new IntersectionObserver(entries => this._observerCallback(entries), options)
@@ -196,6 +187,11 @@ class ScrollSpy extends BaseComponent {
     }
   }
 
+  // TODO: v6 Only for backwards compatibility reasons. Use rootMargin only
+  _getRootMargin() {
+    return this._config.offset ? `${this._config.offset}px 0px -30%` : this._config.rootMargin
+  }
+
   _initializeTargetsAndObservables() {
     this._targetLinks = new Map()
     this._observableSections = new Map()
@@ -208,11 +204,11 @@ class ScrollSpy extends BaseComponent {
         continue
       }
 
-      const observableSection = SelectorEngine.findOne(decodeURI(anchor.hash), this._element)
+      const observableSection = SelectorEngine.findOne(anchor.hash, this._element)
 
       // ensure that the observableSection exists & is visible
       if (isVisible(observableSection)) {
-        this._targetLinks.set(decodeURI(anchor.hash), anchor)
+        this._targetLinks.set(anchor.hash, anchor)
         this._observableSections.set(anchor.hash, observableSection)
       }
     }

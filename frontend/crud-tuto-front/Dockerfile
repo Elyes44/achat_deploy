@@ -1,26 +1,15 @@
-# Étape 1 : Construire l'application Angular
-FROM node:latest as builder
-
-# Définir le répertoire de travail dans le conteneur
-WORKDIR /app
-
-# Copier le fichier package.json et package-lock.json dans le répertoire de travail
-COPY package*.json ./
-
-# Installer les dépendances
-RUN npm install --force
-
-# Copier l'ensemble du code source dans le répertoire de travail
+FROM node AS build
+WORKDIR /usr/src/app
+COPY package.json package-lock.json ./
+#RUN npm cache clean --force
+RUN npm install
+#--legacy-peer-deps
 COPY . .
+RUN npm run build --prod
 
-# Construire l'application Angular
-RUN npm run build
 
-# Étape 2 : Utiliser Nginx comme image de base pour servir l'application Angular
-FROM nginx:latest
 
-# Copier l'application Angular compilée de l'étape "builder" vers le dossier public par défaut de Nginx
-COPY --from=builder /app/dist/crudtuto-Front /usr/share/nginx/html
-
-# Exposer le port 80 pour le serveur web
-EXPOSE 80
+FROM nginx:latest-alpine
+COPY --from=build /usr/src/app/dist/crudtuto-Front /usr/share/nginx/html
+#COPY /nginx.conf  /etc/nginx/conf.d/default.conf
+#EXPOSE 80
