@@ -1,22 +1,19 @@
-FROM node AS build
-# Create a Virtual directory inside the docker image
-WORKDIR /dist/src/app
-# Copy files to virtual directory
-COPY package.json package-lock.json ./
-# Run command in Virtual directory
-RUN npm cache clean --force
-# Copy files from local machine to virtual directory in docker image
-RUN npm install --legacy-peer-deps
+# Use the official Node.js image as the base image
+FROM node:16-alpine AS build
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the package.json and package-lock.json files to the container
+COPY package*.json ./
+
+# Install project dependencies
+RUN npm install --force
+
+# Copy the rest of the application code to the container
 COPY . .
-RUN npm run build --prod
 
+# Build the Angular app for production
+RUN npm run build
 
-### STAGE 2:RUN ###
-# Defining nginx image to be used
-FROM nginx:latest AS ngi
-# Copying compiled code and nginx config to different folder
-COPY --from=build /dist/crudtuto-Front /usr/share/nginx/html
-COPY /nginx.conf  /etc/nginx/conf.d/default.conf
-# Exposing a port, here it means that inside the container
-# the app will be using Port 80 while running
-EXPOSE 80
+# Your Dockerfile continues with the setup for your NGINX or other server
