@@ -1,18 +1,26 @@
 version: '3'
 services:
   spring-boot-app:
-    image: justelyes/achat-back:latest
+    image: justelyes/spring:latest
     ports:
-      - "8089:8080"
+      - "8089:8089"
     networks:
-      - achat
+      - project
 
   angular-app:
     image: justelyes/front-angular:latest
     ports:
-      - "4200:4200"
+      - "4200:80"
     networks:
-      - achat
+      - project
+
+  database:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: achatdb
+    networks:
+      - project
 
 networks:
-  achat:
+  project:
