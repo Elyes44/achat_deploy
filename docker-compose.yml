@@ -2,6 +2,7 @@ version: '3'
 services:
   spring-boot-app:
     image: justelyes/spring:latest
+    container_name: spring
     ports:
       - "8089:8089"
     networks:
@@ -9,6 +10,7 @@ services:
 
   angular-app:
     image: justelyes/front-angular:latest
+    container_name: angular
     ports:
       - "4200:80"
     networks:
