@@ -21,7 +21,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://docker-compose-mysql-db:3306/achatdb
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_PASSWORD=password
     networks:
       - my-network
   angular-app:
