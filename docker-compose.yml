@@ -17,7 +17,6 @@ services:
     image: justelyes/spring:latest
     depends_on:
       - db
-    build: ./
     restart: on-failure
     ports:
       - 8089:8089
@@ -30,11 +29,12 @@ services:
         "spring.jpa.hibernate.ddl-auto" : "update"}'
     networks:
       - project
+      -
   frontend:
     image: justelyes/front-angular:latest
     restart: on-failure
     ports:
-      - 4600:4600
+      - 4600:80
     networks:
       - project
 
