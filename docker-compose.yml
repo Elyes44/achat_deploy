@@ -32,7 +32,6 @@ services:
       - project
   frontend:
     image: justelyes/front-angular:latest
-    build: ./crud-tuto-front
     restart: on-failure
     ports:
       - 4600:4600
