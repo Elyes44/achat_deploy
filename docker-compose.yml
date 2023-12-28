@@ -1,29 +1,45 @@
-version: '3'
+version: "3.8"
+
 services:
-  spring-boot-app:
-    image: justelyes/spring:latest
-    container_name: spring
-    ports:
-      - "8089:8089"
-    networks:
-      - project
-
-  angular-app:
-    image: justelyes/front-angular:latest
-    container_name: angular
-    ports:
-      - "4200:80"
-    networks:
-      - project
-
-  database:
-    image: mysql:latest
-    container_name: db
+  db:
+    image: mysql:5.7
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: achatdb
+      - MYSQL_ALLOW_EMPTY_PASSWORD
+      - MYSQL_ROOT_PASSWORD=mypass1234
+      - MYSQL_DATABASE=achatdb
+    ports:
+      - 3306:3306
+    networks:
+      - project
+
+  backend:
+    image: justelyes/spring:latest
+    depends_on:
+      - db
+    build: ./
+    restart: on-failure
+    ports:
+      - 8089:8089
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url"  : "jdbc:mysql://mysqldb:3306/achatdb?useSSL=false",
+        "spring.datasource.username" : "root",
+        "spring.datasource.password" : "1234",
+        "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL5InnoDBDialect",
+        "spring.jpa.hibernate.ddl-auto" : "update"}'
+    networks:
+      - project
+  frontend:
+    image: justelyes/front-angular:latest
+    build: ./crud-tuto-front
+    restart: on-failure
+    ports:
+      - 4600:4600
     networks:
       - project
 
 networks:
   project:
+    driver: bridge
+

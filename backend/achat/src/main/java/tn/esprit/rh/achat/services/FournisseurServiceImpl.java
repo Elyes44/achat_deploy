@@ -18,6 +18,7 @@ import java.util.List;
 @Slf4j
 public class FournisseurServiceImpl implements IFournisseurService {
 
+
 	@Autowired
 	FournisseurRepository fournisseurRepository;
 	@Autowired
