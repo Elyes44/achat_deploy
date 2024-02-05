@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    environment {
+        registryfront = "justelyes.azurecr.io/angular"
+        registryfrontDocker = "justelyes/angular"
+
+    }
+
+    stages {
+        stage("Clone code from GitHub") {
+            steps {
+                script {
+                    git branch: 'Elyes', url: 'https://github.com/NOUR-BEN-ALI/devops-front.git'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                    sh 'npm install --legacy-peer-deps --force'
+                    sh 'npm run build --legacy-peer-deps --force'
+            }
+        }
+
+        stage('Building a Docker Image') {
+            steps {
+                script {
+                //sh "docker image build -t ${registryfront}:$BUILD_NUMBER ."
+                sh "docker image build -t ${registryfrontDocker}:$BUILD_NUMBER ."
+
+                }
+            }
+        }
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    withDockerRegistry([credentialsId: 'docker_credss', url: 'https://index.docker.io/v1/']) {
+                        sh "docker push ${registryfrontDocker}:$BUILD_NUMBER"
+                        emailext body: 'TeamWork_Front Job $BUILD_NUMBER : has completed successfully.', recipientProviders: [buildUser()], subject: 'Pipeline Status ! ', to: 'medelyes.abidi@esprit.tn'
+
+                    }
+                }
+            }
+        }        
+    }
+}

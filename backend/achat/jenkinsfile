@@ -2,33 +2,50 @@ pipeline {
     agent any
     
     environment {
-        registryBack = "justelyes/achat-back"
-        }
+        registryBack = "justelyes/spring"
+        registryBackAzure = 'justelyes.azurecr.io/spring'
+    }
 
     stages {
-        stage("Clone code from GitHub") {
+        stage("Clone code depuis GitHub") {
             steps {
                 script {
-                    git branch: 'Elyes', credentialsId: 'Git_cred', url: 'https://github.com/Elyes44/achat_deploy.git'
+                    git branch: 'Elyes', url: 'https://github.com/NOUR-BEN-ALI/devops-back.git'
                 }
             }
         }
 
-        stage("Maven Build and Test") {
+        
+           stage("Maven Build and Test") {
             steps {
-                dir('backend/achat') {
-                    sh 'mvn test'
                     sh 'mvn clean install'
-                }
             }
         }
-
-        stage('SonarQube analysis Spring Boot') {
+                stage('SonarQube analysis Spring Boot') {
             steps {
-                dir('backend/achat') {
                     withSonarQubeEnv('sonarq') {
                         sh 'mvn sonar:sonar'
                     }
+            }
+        }
+                stage('Nexus Deploy') {
+            steps {
+                script {
+                        withCredentials([usernamePassword(credentialsId: 'creds_nexus', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                            withMaven(
+                                globalMavenSettingsConfig: '',
+                                jdk: 'JAVA_HOME',
+                                maven: 'M2_HOME',
+                                mavenSettingsConfig: '',
+                                mavenSettingsFilePath: '/usr/share/maven/conf/settings.xml'
+                            ) {
+                                sh "mvn deploy -Dusername=${NEXUS_USERNAME} -Dpassword=${NEXUS_PASSWORD}"
+                                sh 'docker restart spring'
+                                emailext body: 'TeamWork Job $BUILD_NUMBER : has completed successfully.', recipientProviders: [buildUser()], subject: 'Pipeline Status ! ', to: 'medelyes.abidi@esprit.tn'
+
+
+                            }
+                        }
                 }
             }
         }
@@ -36,10 +53,7 @@ pipeline {
         stage('Building a Docker Image') {
             steps {
                 script {
-                    dir('backend/achat') {
-                        def dockerImage = docker.build "${registryBack}:latest"
-                        
-                    }
+                        def dockerImage = docker.build "${registryBack}:$BUILD_NUMBER"
                 }
             }
         }
@@ -47,35 +61,19 @@ pipeline {
   stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    // Use the Docker Hub credentials stored in Jenkins
                     withDockerRegistry([credentialsId: 'docker_credss', url: 'https://index.docker.io/v1/']) {
-                        // Push the Docker image to Docker Hub
-                        sh "docker push ${registryBack}:latest"
+                        sh "docker push ${registryBack}:$BUILD_NUMBER"
                     }
                 }
             }
         }
-
-        stage('Nexus Deploy') {
+     
+        stage('Docker-compose Deploy') {
             steps {
-                script {
-                    dir('backend/achat') {
-                        withCredentials([usernamePassword(credentialsId: 'nexus_creds', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                            withMaven(
-                                globalMavenSettingsConfig: '',
-                                jdk: 'JAVA_HOME',
-                                maven: 'M2_HOME',
-                                mavenSettingsConfig: '',
-                                mavenSettingsFilePath: '/usr/share/maven/conf/settings.xml',
-                                publisherStrategy: 'EXPLICIT',
-                                traceability: true
-                            ) {
-                                sh "mvn deploy -Dusername=${NEXUS_USERNAME} -Dpassword=${NEXUS_PASSWORD}"
-                            }
-                        }
-                    }
-                }
+               sh 'docker-compose up --build -d'
+               sh 'echo "done!"'
             }
-        }
+        }       
     }
 }
+

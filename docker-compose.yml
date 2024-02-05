@@ -29,7 +29,7 @@ services:
         "spring.jpa.hibernate.ddl-auto" : "update"}'
     networks:
       - project
-      
+
   frontend:
     image: justelyes/front-angular:latest
     restart: on-failure
